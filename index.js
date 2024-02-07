@@ -97,7 +97,7 @@ function addEmployees() {
             })
         ]);
     }
-    
+
     getListRolesAndManagers().then(([roles, managers]) => {
         const questions = [{
             type: 'input',
@@ -121,7 +121,7 @@ function addEmployees() {
             choices: managers
         }];
         return inquirer.prompt(questions).then((answers) => {
-            console.log (answers)
+            console.log(answers)
         });
     }).catch(error => {
         console.error("An error occurred:", error);
@@ -132,11 +132,11 @@ function updateEmployeeRole() {
 }
 function viewAllRoles() {
     db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN department ON roles.department_id = department.id ', (error, answers, fields) => {
-        if (error){
-            throw(error)
+        if (error) {
+            throw (error)
         }
         console.log(" ")
-        for (let x = 0; x < answers.length; x++){
+        for (let x = 0; x < answers.length; x++) {
 
             console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
         }
@@ -150,21 +150,35 @@ function addRole() {
 }
 function viewAllDepartments() {
     db.query('SELECT id, name FROM department', (error, answers, fields) => {
-        if (error){
-            throw(error)
+        if (error) {
+            throw (error)
         }
         console.log(" ")
-        for (let x = 0; x < answers.length; x++){
+        for (let x = 0; x < answers.length; x++) {
             console.log(`${answers[x].id}     ${answers[x].name}`)
         }
         console.log(" ")
         mainQuestions()
     })
 
-    
+
 }
+
 function addDepatment() {
-    mainQuestions()
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'departmentName',
+            message: 'What is the name of the department? '
+        }
+    ]).then((answers) => {
+        db.query(`INSERT INTO department (name) VALUES ('${answers.departmentName}');`)
+        console.log(`Successfully Added ${answers.departmentName} to the list of departments`)
+        console.log(' ')
+        
+    }).then(() => {
+        mainQuestions()
+    })
 }
 function quit() {
     process.exit()
