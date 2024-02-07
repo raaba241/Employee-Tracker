@@ -131,7 +131,7 @@ function updateEmployeeRole() {
     mainQuestions()
 }
 function viewAllRoles() {
-    db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN	department ON roles.department_id = department.id ', (error, answers, fields) => {
+    db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN department ON roles.department_id = department.id ', (error, answers, fields) => {
         if (error){
             throw(error)
         }
@@ -140,6 +140,8 @@ function viewAllRoles() {
 
             console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
         }
+        console.log(' ')
+        mainQuestions()
     })
 
 }
@@ -147,7 +149,19 @@ function addRole() {
     mainQuestions()
 }
 function viewAllDepartments() {
-    mainQuestions()
+    db.query('SELECT id, name FROM department', (error, answers, fields) => {
+        if (error){
+            throw(error)
+        }
+        console.log(" ")
+        for (let x = 0; x < answers.length; x++){
+            console.log(`${answers[x].id}     ${answers[x].name}`)
+        }
+        console.log(" ")
+        mainQuestions()
+    })
+
+    
 }
 function addDepatment() {
     mainQuestions()
