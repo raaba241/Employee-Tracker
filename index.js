@@ -1,5 +1,5 @@
 const inquirer = require('inquirer')
-
+const db = require('./connections/connect.js')
 function mainQuestions() {
     inquirer
         .prompt([
@@ -20,31 +20,31 @@ function mainQuestions() {
             },
         ])
         .then(answers => {
-            if (answers.choice === "View All Employees"){
+            if (answers.choice === "View All Employees") {
                 viewAllEmployees()
             }
-            else if (answers.choice === "Add Employee"){
+            else if (answers.choice === "Add Employee") {
                 addEmployees()
             }
-            else if (answers.choice === "Update Employee Role"){
+            else if (answers.choice === "Update Employee Role") {
                 updateEmployeeRole()
             }
-            else if (answers.choice === "View All Roles"){
+            else if (answers.choice === "View All Roles") {
                 viewAllRoles()
             }
-            else if (answers.choice === "Add Role"){
+            else if (answers.choice === "Add Role") {
                 addRole()
             }
-            else if (answers.choice === "View All Departments"){
+            else if (answers.choice === "View All Departments") {
                 viewAllDepartments()
             }
-            else if (answers.choice === "Add Department"){
+            else if (answers.choice === "Add Department") {
                 addDepatment()
             }
-            else if (answers.choice === "Quit"){
+            else if (answers.choice === "Quit") {
                 quit()
             }
-         
+
 
         })
         .catch(error => {
@@ -52,33 +52,38 @@ function mainQuestions() {
         });
 }
 
-function viewAllEmployees(){
-    connection.query('SELECT * FROM employee', (error, results, fields) => {
-        if(error) throw error;
-        console.log(results)
+function viewAllEmployees() {
+    db.query('SELECT employee.id AS employeeID,  employee.first_name AS FIRST_NAME, employee.last_name AS LAST_NAME, roles.title AS TITLE, roles.salary AS SALARY, department.name AS DEPARTMENT,manager.id AS MANAGER_ID,manager.first_name AS MANAGER_FIRST_NAME,manager.last_name AS MANAGER_LAST_NAME FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN department ON roles.department_id = department.id LEFT JOIN	employee manager ON  employee.manager_id = manager.id;', (error, answers, fields) => {
+        if (error) throw error;
+        console.log("   ")
+        console.log("id   First Name     Last Name          Title               department        salary         manager");
+        console.log("--   -------------  --------------     -------             ---------------   ----------     --------------");
+    
+        for(let x = 0; x < answers.length; x++){
+            console.log(answers[x].employeeID +"    "+ answers[x].FIRST_NAME +"            "+ answers[x].LAST_NAME +"               "+ answers[x].TITLE+ "     "+ answers[x].DEPARTMENT + "     "+ answers[x].MANAGER_FIRST_NAME+" "+answers[x].MANAGER_LAST_NAME )
+        }
 
     })
+}
+function addEmployees() {
     mainQuestions()
 }
-function addEmployees(){
+function updateEmployeeRole() {
     mainQuestions()
 }
-function updateEmployeeRole(){
+function viewAllRoles() {
     mainQuestions()
 }
-function viewAllRoles(){
+function addRole() {
     mainQuestions()
 }
-function addRole(){
+function viewAllDepartments() {
     mainQuestions()
 }
-function viewAllDepartments(){
+function addDepatment() {
     mainQuestions()
 }
-function addDepatment(){
-    mainQuestions()
-}
-function quit(){
+function quit() {
     process.exit()
 }
 
