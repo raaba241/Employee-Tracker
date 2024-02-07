@@ -58,64 +58,90 @@ function viewAllEmployees() {
         console.log("   ")
         console.log("id   First Name     Last Name          Title               department        salary         manager");
         console.log("--   -------------  --------------     -------             ---------------   ----------     --------------");
-    
-        for(let x = 0; x < answers.length; x++){
-            console.log(answers[x].employeeID +"    "+ answers[x].FIRST_NAME +"            "+ answers[x].LAST_NAME +"             "+ answers[x].TITLE+ "         "+ answers[x].DEPARTMENT+ "     "+ answers[x].SALARY + "            "+ answers[x].MANAGER_FIRST_NAME+" "+answers[x].MANAGER_LAST_NAME )
+
+        for (let x = 0; x < answers.length; x++) {
+            console.log(answers[x].employeeID + "    " + answers[x].FIRST_NAME + "            " + answers[x].LAST_NAME + "             " + answers[x].TITLE + "         " + answers[x].DEPARTMENT + "     " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
         }
 
     })
     mainQuestions()
 }
 function addEmployees() {
-    function getListRoles(){
-        return new Promise((resolve, reject) => {
-            const roles = [];
-            db.query('SELECT title FROM roles', (error, answers, fields) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    for (let x = 0; x < answers.length; x++) {
-                        roles.push(answers[x].title);
+    function getListRolesAndManagers() {
+        return Promise.all([
+            new Promise((resolve, reject) => {
+                const roles = [];
+                db.query('SELECT title FROM roles', (error, answers, fields) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        for (let x = 0; x < answers.length; x++) {
+                            roles.push(answers[x].title);
+                        }
+                        resolve(roles);
                     }
-                    resolve(roles);
-                }
-            });
-        });
+                });
+            }),
+            new Promise((resolve, reject) => {
+                const managers = [];
+                db.query('SELECT first_name, last_name FROM employee WHERE manager_id IS NULL', (error, answers, fields) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        for (let x = 0; x < answers.length; x++) {
+                            managers.push(`${answers[x].first_name} ${answers[x].last_name}`);
+                        }
+                        resolve(managers);
+                    }
+                });
+            })
+        ]);
     }
     
-    getListRoles().then(roles => {
+    getListRolesAndManagers().then(([roles, managers]) => {
         const questions = [{
             type: 'input',
             name: 'first_name',
-            message: "What is the emplyee's first name? "
-        },{
+            message: "What is the employee's first name? "
+        }, {
             type: 'input',
             name: 'last_name',
-            message: "What is the emplyee's last name? "
+            message: "What is the employee's last name? "
         },
         {
             type: 'list',
-            name: 'role_list',
-            message: "What is the emplyee's role? ",
+            name: 'role',
+            message: "What is the employee's role? ",
             choices: roles
         },
-        ]
-
-        inquirer.prompt(questions)
-        
+        {
+            type: 'list',
+            name: 'manager',
+            message: "Who is the employee's manager? ",
+            choices: managers
+        }];
+        return inquirer.prompt(questions).then((answers) => {
+            console.log (answers)
+        });
     }).catch(error => {
-        console.error("Database query failed:", error);
+        console.error("An error occurred:", error);
     });
-
-    
-    
-
 }
 function updateEmployeeRole() {
     mainQuestions()
 }
 function viewAllRoles() {
-    mainQuestions()
+    db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN	department ON roles.department_id = department.id ', (error, answers, fields) => {
+        if (error){
+            throw(error)
+        }
+        console.log(" ")
+        for (let x = 0; x < answers.length; x++){
+
+            console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
+        }
+    })
+
 }
 function addRole() {
     mainQuestions()
