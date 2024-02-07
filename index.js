@@ -1,5 +1,5 @@
-import inquirer from 'inquirer'
-const db = require('./connections/connect')
+const inquirer = require('inquirer')
+
 function mainQuestions() {
     inquirer
         .prompt([
@@ -53,7 +53,11 @@ function mainQuestions() {
 }
 
 function viewAllEmployees(){
+    connection.query('SELECT * FROM employee', (error, results, fields) => {
+        if(error) throw error;
+        console.log(results)
 
+    })
     mainQuestions()
 }
 function addEmployees(){
