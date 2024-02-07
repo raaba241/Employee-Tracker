@@ -1,5 +1,5 @@
 import inquirer from 'inquirer'
-
+const db = require('./connections/connect')
 function mainQuestions() {
     inquirer
         .prompt([
@@ -52,14 +52,31 @@ function mainQuestions() {
         });
 }
 
-function viewAllEmployees(){}
-function addEmployees(){}
-function updateEmployeeRole(){}
-function viewAllRoles(){}
-function addRole(){}
-function viewAllDepartments(){}
-function addDepatment(){}
-function quit(){}
+function viewAllEmployees(){
+
+    mainQuestions()
+}
+function addEmployees(){
+    mainQuestions()
+}
+function updateEmployeeRole(){
+    mainQuestions()
+}
+function viewAllRoles(){
+    mainQuestions()
+}
+function addRole(){
+    mainQuestions()
+}
+function viewAllDepartments(){
+    mainQuestions()
+}
+function addDepatment(){
+    mainQuestions()
+}
+function quit(){
+    process.exit()
+}
 
 mainQuestions()
 
