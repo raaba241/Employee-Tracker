@@ -67,43 +67,48 @@ function viewAllEmployees() {
     mainQuestions()
 }
 function addEmployees() {
-    async function getListRoles(){
-        const roles = []
-        db.query ('SELECT title FROM roles',(error, answers, fields) => {
-            if(error) throw error;
-            for (let x = 0; x < answers.length; x++){
-                roles.push(answers[x].title)
-            }
-        
-            return roles;
-        } )
+    function getListRoles(){
+        return new Promise((resolve, reject) => {
+            const roles = [];
+            db.query('SELECT title FROM roles', (error, answers, fields) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    for (let x = 0; x < answers.length; x++) {
+                        roles.push(answers[x].title);
+                    }
+                    resolve(roles);
+                }
+            });
+        });
     }
+    
+    getListRoles().then(roles => {
+        const questions = [{
+            type: 'input',
+            name: 'first_name',
+            message: "What is the emplyee's first name? "
+        },{
+            type: 'input',
+            name: 'last_name',
+            message: "What is the emplyee's last name? "
+        },
+        {
+            type: 'list',
+            name: 'role_list',
+            message: "What is the emplyee's role? ",
+            choices: roles
+        },
+        ]
 
-    getListRoles().then(
-        console.log(roles)
-    )
-    const questions = [{
-        type: 'input',
-        name: 'first_name',
-        message: "What is the emplyee's first name? "
-    },{
-        type: 'input',
-        name: 'last_name',
-        message: "What is the emplyee's last name? "
-    },
-    {
-        type: 'list',
-        name: 'role_list',
-        message: "What is the emplyee's role? "
-    },
-    {
-        type: 'list',
-        name: 'role_list',
-        message: "What is the emplyee's role? ",
-    }]
-    inquirer.prompt([
-    ]
-        )
+        inquirer.prompt(questions)
+        
+    }).catch(error => {
+        console.error("Database query failed:", error);
+    });
+
+    
+    
 
 }
 function updateEmployeeRole() {
