@@ -60,13 +60,51 @@ function viewAllEmployees() {
         console.log("--   -------------  --------------     -------             ---------------   ----------     --------------");
     
         for(let x = 0; x < answers.length; x++){
-            console.log(answers[x].employeeID +"    "+ answers[x].FIRST_NAME +"            "+ answers[x].LAST_NAME +"               "+ answers[x].TITLE+ "     "+ answers[x].DEPARTMENT + "     "+ answers[x].MANAGER_FIRST_NAME+" "+answers[x].MANAGER_LAST_NAME )
+            console.log(answers[x].employeeID +"    "+ answers[x].FIRST_NAME +"            "+ answers[x].LAST_NAME +"             "+ answers[x].TITLE+ "         "+ answers[x].DEPARTMENT+ "     "+ answers[x].SALARY + "            "+ answers[x].MANAGER_FIRST_NAME+" "+answers[x].MANAGER_LAST_NAME )
         }
 
     })
+    mainQuestions()
 }
 function addEmployees() {
-    mainQuestions()
+    async function getListRoles(){
+        const roles = []
+        db.query ('SELECT title FROM roles',(error, answers, fields) => {
+            if(error) throw error;
+            for (let x = 0; x < answers.length; x++){
+                roles.push(answers[x].title)
+            }
+        
+            return roles;
+        } )
+    }
+
+    getListRoles().then(
+        console.log(roles)
+    )
+    const questions = [{
+        type: 'input',
+        name: 'first_name',
+        message: "What is the emplyee's first name? "
+    },{
+        type: 'input',
+        name: 'last_name',
+        message: "What is the emplyee's last name? "
+    },
+    {
+        type: 'list',
+        name: 'role_list',
+        message: "What is the emplyee's role? "
+    },
+    {
+        type: 'list',
+        name: 'role_list',
+        message: "What is the emplyee's role? ",
+    }]
+    inquirer.prompt([
+    ]
+        )
+
 }
 function updateEmployeeRole() {
     mainQuestions()
