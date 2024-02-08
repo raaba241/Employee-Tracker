@@ -66,6 +66,8 @@ function viewAllEmployees() {
         for (let x = 0; x < answers.length; x++) {
             console.log(answers[x].employeeID + "          " + answers[x].FIRST_NAME + "              " + answers[x].LAST_NAME + "                " + answers[x].TITLE + "               " + answers[x].DEPARTMENT + "           " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
         }
+        console.log("   ")
+        mainQuestions()
 
     })
 
@@ -171,9 +173,85 @@ function addEmployees() {
 }
 
 function updateEmployeeRole() {
+    function getListRolesAndEmployees() {
+        //Need promise.all() to complete 2 promises, normally only 1 promise can be satisfied
+        return Promise.all([
+            //Makes sure the roles get selected and stored in roles
+            new Promise((resolve, reject) => {
+                const roles = [];
+                
+                db.query('SELECT id, title FROM roles', (error, answers, fields) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        for (let x = 0; x < answers.length; x++) {
+                            roles.push({
+                                name: answers[x].title,
+                                id: answers[x].id
+                            });
+                        }
+                        
+                        resolve(roles);
+                    }
+                });
+            }),
+            //Makes sure the managers get selected and stored in managers
+            new Promise((resolve, reject) => {
+                const employees = [];
+                db.query('SELECT  id, first_name, last_name, role_id FROM employee', (error, answers, fields) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        for (let x = 0; x < answers.length; x++) {
+                            employees.push({
+                                name: `${answers[x].first_name} ${answers[x].last_name}`,
+                                id: answers[x].id,
+                                roleID: answers.role_id
+                            })
+                        }
+                       
+                        resolve(employees);
+                    }
+                });
+            })
+        ]);
+    }
+    getListRolesAndEmployees().then(([roles, employees]) => {
+        inquirer.prompt([{
+            type: 'list',
+            name: 'employee',
+            choices: employees,
+            message: 'Which employee would you like to update?'
 
+        },
+        {
+            type: 'list',
+            name: 'role',
+            choices: roles,
+            message: 'What role would you like to update the role of the selected employee'
+        }]
+        ).then((answers)=>{
+            const employeeID = []
+            for(let x = 0; x < employees.length; x++){
+                if (answers.employee === employees[x].name){
+                    employeeID.push(employees[x].id)
+                }
+            }
+            const rolesID = [] 
+            for(let x = 0; x < roles.length; x++){
+                if (answers.role === roles[x].name){
+                    rolesID.push(roles[x].id)
+                }
+            }
+            
+            
+            db.query(`UPDATE employee SET role_id = ${rolesID} WHERE id = ${employeeID};`)
+            
 
-    mainQuestions()
+        }).then(()=>{console.log("SUCCESS!")})
+    })
+
+    // mainQuestions()
 }
 
 //Allows user to view all roles currently existing (complete)
@@ -188,7 +266,7 @@ function viewAllRoles() {
             console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
         }
         console.log(' ')
-
+        mainQuestions()
     })
 }
 //Succesfully Adds a role the user has defined 
@@ -230,6 +308,8 @@ function addRole() {
                 }
                 db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answers.roleName}',${answers.salary},${selectedDepartmentID})`)
                 console.log(`Successfully added ${answers.roleName} to the database!`)
+
+                mainQuestions()
             })
 
         }
@@ -262,9 +342,8 @@ function addDepatment() {
         db.query(`INSERT INTO department (name) VALUES ('${answers.departmentName}');`)
         console.log(`Successfully Added ${answers.departmentName} to the list of departments`)
         console.log(' ')
-
-    }).then(() => {
         mainQuestions()
+
     })
 }
 //Function to exit the terminal (complete)
