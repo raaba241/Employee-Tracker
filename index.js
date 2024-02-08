@@ -1,5 +1,8 @@
+// Importing inquirer and requiring the connections file
 const inquirer = require('inquirer')
 const db = require('./connections/connect.js')
+
+//Main menu questions 
 function mainQuestions() {
     inquirer
         .prompt([
@@ -14,11 +17,11 @@ function mainQuestions() {
                     'Add Role',
                     'View All Departments',
                     'Add Department',
-                    'Quit',
-                    'View All Employee'
+                    'Quit'
                 ],
             },
         ])
+        //Once questions are done being asked, launch a specific function
         .then(answers => {
             if (answers.choice === "View All Employees") {
                 viewAllEmployees()
@@ -52,23 +55,28 @@ function mainQuestions() {
         });
 }
 
+//Function to view all employees
 function viewAllEmployees() {
     db.query('SELECT employee.id AS employeeID,  employee.first_name AS FIRST_NAME, employee.last_name AS LAST_NAME, roles.title AS TITLE, roles.salary AS SALARY, department.name AS DEPARTMENT,manager.id AS MANAGER_ID,manager.first_name AS MANAGER_FIRST_NAME,manager.last_name AS MANAGER_LAST_NAME FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN department ON roles.department_id = department.id LEFT JOIN	employee manager ON  employee.manager_id = manager.id;', (error, answers, fields) => {
         if (error) throw error;
         console.log("   ")
-        console.log("id   First Name     Last Name          Title               department        salary         manager");
-        console.log("--   -------------  --------------     -------             ---------------   ----------     --------------");
+        console.log("id      First Name          Last Name                 Title               department               salary            manager");
+        console.log("--       -------------      --------------            -------             ---------------          ----------        --------------");
 
         for (let x = 0; x < answers.length; x++) {
-            console.log(answers[x].employeeID + "    " + answers[x].FIRST_NAME + "            " + answers[x].LAST_NAME + "             " + answers[x].TITLE + "         " + answers[x].DEPARTMENT + "     " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
+            console.log(answers[x].employeeID + "          " + answers[x].FIRST_NAME + "              " + answers[x].LAST_NAME + "                " + answers[x].TITLE + "               " + answers[x].DEPARTMENT + "           " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
         }
 
     })
-    mainQuestions()
+
 }
+
+//Function to add employees
 function addEmployees() {
     function getListRolesAndManagers() {
+        //Need promise.all() to complete 2 promises, normally only 1 promise can be satisfied
         return Promise.all([
+            //Makes sure the roles get selected and stored in roles
             new Promise((resolve, reject) => {
                 const roles = [];
                 db.query('SELECT title FROM roles', (error, answers, fields) => {
@@ -82,6 +90,7 @@ function addEmployees() {
                     }
                 });
             }),
+            //Makes sure the managers get selected and stored in managers
             new Promise((resolve, reject) => {
                 const managers = [];
                 db.query('SELECT first_name, last_name FROM employee WHERE manager_id IS NULL', (error, answers, fields) => {
@@ -97,7 +106,7 @@ function addEmployees() {
             })
         ]);
     }
-
+    //Once both managers and roles arrays have been filled, those are then passed onto the next part of the line.
     getListRolesAndManagers().then(([roles, managers]) => {
         const questions = [{
             type: 'input',
@@ -141,13 +150,54 @@ function viewAllRoles() {
             console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
         }
         console.log(' ')
-        mainQuestions()
-    })
 
+    })
 }
+//Succesfully Adds a role the user has defined 
 function addRole() {
-    mainQuestions()
+    db.query('SELECT id, name FROM department', (error, answers, fields) => {
+        if(error){
+            throw (error)
+        }
+        else {
+            const departmentObj = answers
+            const departmentName = []
+            for (let x = 0; x < answers.length; x++){
+                departmentName.push(answers[x].name)
+            }
+
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'roleName',
+                    message: 'What is the name of the role? '
+                },
+                {
+                    type: 'input',
+                    name: 'salary',
+                    message: 'What is the salary of the role '
+                },
+                {
+                    type: 'list',
+                    name: 'department',
+                    choices: departmentName,
+                    message: 'What depeartment does the role belong to? '
+                }
+            ]).then((answers) => {
+                const selectedDepartmentID = []
+                for (let x = 0; x < departmentObj.length;x++){
+                    if (answers.department === departmentObj[x].name){
+                        selectedDepartmentID.push(departmentObj[x].id)
+                    } 
+                }
+                db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answers.roleName}',${answers.salary},${selectedDepartmentID})`)
+                console.log(`Successfully added ${answers.roleName} to the database!`)
+            })
+
+        }
+    })
 }
+//A function to view all departments
 function viewAllDepartments() {
     db.query('SELECT id, name FROM department', (error, answers, fields) => {
         if (error) {
@@ -160,10 +210,9 @@ function viewAllDepartments() {
         console.log(" ")
         mainQuestions()
     })
-
-
 }
 
+//Function to add a department (complete)
 function addDepatment() {
     inquirer.prompt([
         {
@@ -175,11 +224,12 @@ function addDepatment() {
         db.query(`INSERT INTO department (name) VALUES ('${answers.departmentName}');`)
         console.log(`Successfully Added ${answers.departmentName} to the list of departments`)
         console.log(' ')
-        
+
     }).then(() => {
         mainQuestions()
     })
 }
+//Function to exit the terminal
 function quit() {
     process.exit()
 }
