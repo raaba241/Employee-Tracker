@@ -57,16 +57,17 @@ function mainQuestions() {
 
 //Function to view all employees (complete)
 function viewAllEmployees() {
-    db.query('SELECT employee.id AS employeeID,  employee.first_name AS FIRST_NAME, employee.last_name AS LAST_NAME, roles.title AS TITLE, roles.salary AS SALARY, department.name AS DEPARTMENT,manager.id AS MANAGER_ID,manager.first_name AS MANAGER_FIRST_NAME,manager.last_name AS MANAGER_LAST_NAME FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN department ON roles.department_id = department.id LEFT JOIN	employee manager ON  employee.manager_id = manager.id ORDER BY employee.id ASC;', (error, answers, fields) => {
+    db.query('SELECT employee.id AS employeeID,  employee.first_name AS FIRST_NAME, employee.last_name AS LAST_NAME, roles.title AS TITLE, roles.salary AS SALARY, department.name AS DEPARTMENT,manager.id AS MANAGER_ID,manager.first_name AS MANAGER_FIRST_NAME,manager.last_name AS MANAGER_LAST_NAME FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN department ON roles.department_id = department.id LEFT JOIN	employee manager ON  employee.manager_id = manager.id ORDER BY employee.id ASC;', (error, answers) => {
         if (error) throw error;
         console.log("   ")
-        console.log("id      First Name          Last Name                 Title               department               salary            manager");
-        console.log("--       -------------      --------------            -------             ---------------          ----------        --------------");
+        // console.log("id      First Name          Last Name                 Title               department               salary            manager");
+        // console.log("--       -------------      --------------            -------             ---------------          ----------        --------------");
 
-        for (let x = 0; x < answers.length; x++) {
-            console.log(answers[x].employeeID + "          " + answers[x].FIRST_NAME + "              " + answers[x].LAST_NAME + "                " + answers[x].TITLE + "               " + answers[x].DEPARTMENT + "           " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
-        }
-        console.log("   ")
+        // for (let x = 0; x < answers.length; x++) {
+        //     console.log(answers[x].employeeID + "          " + answers[x].FIRST_NAME + "              " + answers[x].LAST_NAME + "                " + answers[x].TITLE + "               " + answers[x].DEPARTMENT + "           " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
+        // }
+        // console.log("   ")
+        console.table(answers)
         mainQuestions()
 
     })
@@ -81,7 +82,7 @@ function addEmployees() {
             //Makes sure the roles get selected and stored in roles
             new Promise((resolve, reject) => {
                 const roles = [];
-                
+
                 db.query('SELECT id, title FROM roles', (error, answers, fields) => {
                     if (error) {
                         reject(error);
@@ -92,7 +93,7 @@ function addEmployees() {
                                 id: answers[x].id
                             });
                         }
-                        
+
                         resolve(roles);
                     }
                 });
@@ -123,7 +124,7 @@ function addEmployees() {
             type: 'input',
             name: 'first_name',
             message: "What is the employee's first name? "
-        },{
+        }, {
             type: 'input',
             name: 'last_name',
             message: "What is the employee's last name? "
@@ -144,28 +145,28 @@ function addEmployees() {
 
             const rolesID = []
 
-            for(let x = 0; x < roles.length; x++){
-                if(answers.role === roles[x].name){
+            for (let x = 0; x < roles.length; x++) {
+                if (answers.role === roles[x].name) {
                     rolesID.push(roles[x].id)
                 }
             }
             const managerID = []
 
-            for(let x = 0; x < managers.length; x++){
-                if(answers.manager === managers[x].name){
+            for (let x = 0; x < managers.length; x++) {
+                if (answers.manager === managers[x].name) {
                     managerID.push(managers[x].id)
                 }
             }
 
-            if (answers.manager === 'NONE'){
+            if (answers.manager === 'NONE') {
                 db.query(`INSERT INTO employee (first_name, last_name , role_id, manager_id) VALUES ('${answers.first_name}','${answers.last_name}', (SELECT id FROM roles WHERE title = 'HR Manager'), NULL)`)
             }
-            else{
+            else {
                 db.query(`INSERT INTO employee (first_name, last_name , role_id, manager_id) VALUES ('${answers.first_name}','${answers.last_name}', ${rolesID}, '${managerID}')`)
             }
-           
 
-            console.log (`Successfully added ${answers.first_name} ${answers.last_name} to the employee table!`)
+
+            console.log(`Successfully added ${answers.first_name} ${answers.last_name} to the employee table!`)
         });
     }).catch(error => {
         console.error("An error occurred:", error);
@@ -173,13 +174,19 @@ function addEmployees() {
 }
 
 function updateEmployeeRole() {
+
+    // runa query to return all the roles, then use tha t data to creatae and array with objects with name and value propoerties.
+// ran a query that returns all the available employees and map the data to return an array of objects with name and value properties
+// run inquirer that will wask for the employee first name and last name, and have the user select a role and manager. 
+// once that inquirer is completed I would run a query that would insert my new data into the db
+
     function getListRolesAndEmployees() {
         //Need promise.all() to complete 2 promises, normally only 1 promise can be satisfied
         return Promise.all([
             //Makes sure the roles get selected and stored in roles
             new Promise((resolve, reject) => {
                 const roles = [];
-                
+
                 db.query('SELECT id, title FROM roles', (error, answers, fields) => {
                     if (error) {
                         reject(error);
@@ -190,7 +197,7 @@ function updateEmployeeRole() {
                                 id: answers[x].id
                             });
                         }
-                        
+
                         resolve(roles);
                     }
                 });
@@ -209,7 +216,7 @@ function updateEmployeeRole() {
                                 roleID: answers.role_id
                             })
                         }
-                       
+
                         resolve(employees);
                     }
                 });
@@ -230,55 +237,59 @@ function updateEmployeeRole() {
             choices: roles,
             message: 'What role would you like to update the role of the selected employee'
         }]
-        ).then((answers)=>{
+        ).then((answers) => {
             const employeeID = []
-            for(let x = 0; x < employees.length; x++){
-                if (answers.employee === employees[x].name){
+            for (let x = 0; x < employees.length; x++) {
+                if (answers.employee === employees[x].name) {
                     employeeID.push(employees[x].id)
                 }
             }
-            const rolesID = [] 
-            for(let x = 0; x < roles.length; x++){
-                if (answers.role === roles[x].name){
+            const rolesID = []
+            for (let x = 0; x < roles.length; x++) {
+                if (answers.role === roles[x].name) {
                     rolesID.push(roles[x].id)
                 }
             }
-            
-            
-            db.query(`UPDATE employee SET role_id = ${rolesID} WHERE id = ${employeeID};`)
-            
 
-        }).then(()=>{console.log("SUCCESS!")})
+
+            db.query(`UPDATE employee SET role_id = ${rolesID} WHERE id = ${employeeID};`)
+
+
+        }).then(() => {
+            console.log("SUCCESS!")
+            console.log("         ")
+            mainQuestions()
+        })
     })
 
-    // mainQuestions()
+
 }
 
 //Allows user to view all roles currently existing (complete)
 function viewAllRoles() {
-    db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN department ON roles.department_id = department.id ', (error, answers, fields) => {
+    db.query('SELECT roles.id, title, salary, name FROM roles INNER JOIN department ON roles.department_id = department.id ', (error, answers) => {
         if (error) {
             throw (error)
         }
-        console.log(" ")
-        for (let x = 0; x < answers.length; x++) {
+        console.table(answers)
+        // for (let x = 0; x < answers.length; x++) {
 
-            console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
-        }
-        console.log(' ')
+        //     console.log(`${answers[x].id}      ${answers[x].title}              ${answers[x].name}            $${answers[x].salary} `)
+        // }
+        // console.log(' ')
         mainQuestions()
     })
 }
 //Succesfully Adds a role the user has defined 
 function addRole() {
     db.query('SELECT id, name FROM department', (error, answers, fields) => {
-        if(error){
+        if (error) {
             throw (error)
         }
         else {
             const departmentObj = answers
             const departmentName = []
-            for (let x = 0; x < answers.length; x++){
+            for (let x = 0; x < answers.length; x++) {
                 departmentName.push(answers[x].name)
             }
 
@@ -301,10 +312,10 @@ function addRole() {
                 }
             ]).then((answers) => {
                 const selectedDepartmentID = []
-                for (let x = 0; x < departmentObj.length;x++){
-                    if (answers.department === departmentObj[x].name){
+                for (let x = 0; x < departmentObj.length; x++) {
+                    if (answers.department === departmentObj[x].name) {
                         selectedDepartmentID.push(departmentObj[x].id)
-                    } 
+                    }
                 }
                 db.query(`INSERT INTO roles (title, salary, department_id) VALUES ('${answers.roleName}',${answers.salary},${selectedDepartmentID})`)
                 console.log(`Successfully added ${answers.roleName} to the database!`)
