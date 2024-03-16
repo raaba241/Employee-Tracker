@@ -16,12 +16,7 @@ and update/add roles within the company.
 To install this, simply type "node index.js" in the console.
 
 ## Usage
-View all emplyoyees: view current employees
-Add Employees: adds a new employee to the database
-View Roles: view what roles currently exist within the company
-Add Roles: adds a new role
-View All deperatments: view currently existing departments in the company
-Add Department: adds new departments to the company
+Video showcasing how to use the app: https://drive.google.com/file/d/1R9tSgHxUSyT-ywv_g6B3gqDu2kb2HtU3/view
 
 ## License
 This project is licensed under the MIT License.

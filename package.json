@@ -1,0 +1,12 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "Employee-Tracker was created for business to manage their employees in a company. You can view/add employees or departments\r and update/add roles within the company.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

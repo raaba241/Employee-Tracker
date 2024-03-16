@@ -160,6 +160,7 @@ function addEmployees() {
 
 
             console.log(`Successfully added ${answers.first_name} ${answers.last_name} to the employee table!`)
+            mainQuestions()
         });
     }).catch(error => {
         console.error("An error occurred:", error);
