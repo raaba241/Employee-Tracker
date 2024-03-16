@@ -60,13 +60,6 @@ function viewAllEmployees() {
     db.query('SELECT employee.id AS employeeID,  employee.first_name AS FIRST_NAME, employee.last_name AS LAST_NAME, roles.title AS TITLE, roles.salary AS SALARY, department.name AS DEPARTMENT,manager.id AS MANAGER_ID,manager.first_name AS MANAGER_FIRST_NAME,manager.last_name AS MANAGER_LAST_NAME FROM employee INNER JOIN roles ON employee.role_id = roles.id INNER JOIN department ON roles.department_id = department.id LEFT JOIN	employee manager ON  employee.manager_id = manager.id ORDER BY employee.id ASC;', (error, answers) => {
         if (error) throw error;
         console.log("   ")
-        // console.log("id      First Name          Last Name                 Title               department               salary            manager");
-        // console.log("--       -------------      --------------            -------             ---------------          ----------        --------------");
-
-        // for (let x = 0; x < answers.length; x++) {
-        //     console.log(answers[x].employeeID + "          " + answers[x].FIRST_NAME + "              " + answers[x].LAST_NAME + "                " + answers[x].TITLE + "               " + answers[x].DEPARTMENT + "           " + answers[x].SALARY + "            " + answers[x].MANAGER_FIRST_NAME + " " + answers[x].MANAGER_LAST_NAME)
-        // }
-        // console.log("   ")
         console.table(answers)
         mainQuestions()
 
